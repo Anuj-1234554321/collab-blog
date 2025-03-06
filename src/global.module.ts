@@ -25,6 +25,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { connectionSource } from 'config/ormconfig';
+import { FollowersModule } from './modules/followers/followers.module';
+
 
 @Global()
 @Module({
@@ -35,12 +37,14 @@ import { connectionSource } from 'config/ormconfig';
     }),  // ✅ Database connection
     AuthModule, // ✅ Include AuthModule
     UsersModule, // ✅ Include UsersModule
+    FollowersModule
   ],
   exports: [
     ConfigModule,
     TypeOrmModule,
     AuthModule,
     UsersModule, // ✅ Export all modules so they are accessible everywhere
+    FollowersModule
   ],
 })
 export class GlobalModule {}

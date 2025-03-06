@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GlobalModule } from './global.module';
 
+
 @Module({
   imports: [GlobalModule],
   controllers: [AppController],

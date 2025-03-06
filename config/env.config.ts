@@ -4,15 +4,15 @@ import { registerAs } from '@nestjs/config';
 dotenv.config();
 
 export default registerAs('env', () => ({
-  NODE_ENV: process.env.NODE_ENV || 'development',
+  NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
 
   // Database Configuration
-  DB_HOST: process.env.DB_HOST || 'localhost',
+  DB_HOST: process.env.DB_HOST, 
   DB_PORT: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
-  DB_USER: process.env.DB_USER || 'postgres',
-  DB_PASS: process.env.DB_PASS || 'Anuj@12345',
-  DB_NAME: process.env.DB_NAME || 'collab-blogger',
+  DB_USERNAME: process.env.DB_USERNAME ,
+  DB_PASS: process.env.DB_PASS ,
+  DB_NAME: process.env.DB_NAME, 
 
   // JWT Configuration
   JWT_SECRET: process.env.JWT_SECRET || 'secret',

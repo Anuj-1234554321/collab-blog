@@ -12,7 +12,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: configService.get<string>('JWT_SECRET') || 'secret', // ✅ Provide a fallback
     });
   }
-
   async validate(payload: any) {
     if (!payload) {
       throw new UnauthorizedException('Invalid token');

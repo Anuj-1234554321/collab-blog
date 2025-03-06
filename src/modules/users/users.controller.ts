@@ -30,21 +30,22 @@ export class UserController {
   // ✅ Get Current User (Protected Route)
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Req() req) {
+  async getProfile(@Req() req:any) {
     return req.user; // User data from JWT payload
   }
 
   // ✅ Update User (Protected Route)
   @UseGuards(JwtAuthGuard)
   @Patch('update')
-  async updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+  async updateUser(@Req() req:any, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(req.user.userId, updateUserDto);
   }
 
   // ✅ Delete User (Protected Route)
   @UseGuards(JwtAuthGuard)
   @Delete('delete')
-  async deleteUser(@Req() req) {
-    return this.userService.remove(req.user.userId);
+  async deleteUser(@Req() req:any) :Promise<{message:string}>{
+    this.userService.remove(req.user.userId);
+    return { message: 'User deleted successfully.' };
   }
 }
