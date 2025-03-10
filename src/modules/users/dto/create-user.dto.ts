@@ -13,6 +13,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   name?: string;
 
+  @IsNotEmpty()
+  phoneNumber?: string; // ✅ Add phone number field at registration
+
   @IsEnum(UserRole)
   role?: UserRole; // ✅ Assign role at registration
 }

@@ -26,6 +26,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { connectionSource } from 'config/ormconfig';
 import { FollowersModule } from './modules/followers/followers.module';
+import { RedisModule } from './modules/redis/redis.module';
 
 
 @Global()
@@ -37,14 +38,16 @@ import { FollowersModule } from './modules/followers/followers.module';
     }),  // ✅ Database connection
     AuthModule, // ✅ Include AuthModule
     UsersModule, // ✅ Include UsersModule
-    FollowersModule
+    FollowersModule,
+    RedisModule
   ],
   exports: [
     ConfigModule,
     TypeOrmModule,
     AuthModule,
     UsersModule, // ✅ Export all modules so they are accessible everywhere
-    FollowersModule
+    FollowersModule,
+    RedisModule, // ✅ Export RedisModule so it can be used in other modules
   ],
 })
 export class GlobalModule {}

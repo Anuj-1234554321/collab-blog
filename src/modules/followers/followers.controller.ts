@@ -37,4 +37,5 @@ async getFollowing(@Param('id') userId:number): Promise<any> {
   return this.followersService.getFollowing(userId);
 }
 
+
 }

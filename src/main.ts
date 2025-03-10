@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors(); // Enable CORS if needed
 
   const configService = app.get(ConfigService);
-  const PORT = configService.get<number>('PORT') || 3000;
+  const PORT = configService.get<number>('PORT') ||3001;
   const HOST = configService.get<string>('LOCAL_IP') || '0.0.0.0'; // Default to all network interfaces
 
   await app.listen(PORT, HOST, () => {
