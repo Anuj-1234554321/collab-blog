@@ -5,7 +5,7 @@ dotenv.config();
 
 export default registerAs('env', () => ({
   NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3001,
+  PORT: process.env.PORT ? parseInt(process.env.PORT, 10):3000,
 
   // Database Configuration
   DB_HOST: process.env.DB_HOST, 

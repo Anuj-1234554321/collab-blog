@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsMobilePhone, IsNotEmpty, Matches, MaxLength, MinLength, ValidateIf } from 'class-validator';
 import {UserRole} from '../../../common/enums/user-role.enum'
 
 
@@ -13,8 +13,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   name?: string;
 
-  @IsNotEmpty()
-  phoneNumber?: string; // ✅ Add phone number field at registration
+@ValidateIf((obj) => obj.phone !== undefined) // Validate only if phone exists
+@IsMobilePhone()
+  @IsNotEmpty({ message: 'Phone number cannot be empty' })
+  @MaxLength(15)
+  phone?: string;
 
   @IsEnum(UserRole)
   role?: UserRole; // ✅ Assign role at registration

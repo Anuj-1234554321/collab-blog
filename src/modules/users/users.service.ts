@@ -19,11 +19,18 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Twilio } from "twilio";
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { PhoneNumber } from 'libphonenumber-js';
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
+
+
+
+
 
 
 @Injectable()
 export class UserService {
   private twilioClient;
+  client: any;
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -124,18 +131,10 @@ export class UserService {
 
   // ✅ Reset Password After OTP Verification
   async resetPassword(dto: ResetPasswordDto) {
-    const { identifier, otp, newPassword } = dto;
-    if(!newPassword){
-      throw new Error('New password is required');
+    const { identifier, newPassword } = dto;
+    if(!newPassword || !identifier){
+      throw new Error('Identifier and password must be required for reset password');
     } 
-     
-
-    // Verify OTP before resetting password
-    const storedOtp = await this.redisService.getOTP(`OTP_${identifier}`);
-    if (!storedOtp || storedOtp !== otp) {
-      throw new UnauthorizedException('Invalid or expired OTP');
-    }
-
     const user = await this.userRepository.findOne({
       where: [{ email: identifier }, { phone: identifier }],
     });
@@ -177,39 +176,49 @@ export class UserService {
       throw new InternalServerErrorException("Error sending OTP email.");
     }
   }
-// send otp message by twilio
-  private async sendOtpSms(phone: string, otp: string) {
-    try {
-      await this.twilioClient.messages.create({
-        body: `Your OTP for password reset is: ${otp}`,
-        from: this.configService.get<string>("TWILIO_PHONE_NUMBER"),
-        to: phone,
-      });
+// send otp message by twil
+private async sendOtpSms(phone: string, otp: string) {
+  try {
+    // Manually format the phone number
+    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`; // Ensure it starts with +91
 
-      console.log(`📱 OTP sent successfully to ${phone}`);
-    } catch (error) {
-      console.error("SMS send failed:", error);
-      throw new InternalServerErrorException("Error sending OTP SMS.");
-    }
-  }
+    // Send OTP via Twilio
+    await this.twilioClient.messages.create({
+      body: `Your OTP for password reset is: ${otp}`,
+      from: this.configService.get<string>('TWILIO_PHONE_NUMBER'),
+      to: formattedPhone, // Use manually formatted phone number
+    });
 
-//set otpon mail with time
-  async sendOTP(email: string) {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await this.redisService.setOTP(email, otp);
-    console.log(`OTP ${otp} sent to ${email}`);
-  }
-  async verifyOTP(email: string, enteredOtp: string) {
-    const storedOtp = await this.redisService.getOTP(email);
-    if (storedOtp === enteredOtp) {
-      console.log("OTP Verified!");
-      return true;
-    } else {
-      console.log("Invalid OTP");
-      return false;
-    }
+    console.log(`📱 OTP sent successfully to ${formattedPhone}`);
+  } catch (error) {
+    console.error('❌ SMS send failed:', error);
+    throw new InternalServerErrorException('Error sending OTP SMS.');
   }
 }
+//set otpo n mail with time
+async sendOTP(email: string) {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  await this.redisService.setOTP(email, otp);
+  // Retrieve OTP immediately to check if it's stored
+  const storedOTP = await this.redisService.getOTP(email);
+  console.log(`Stored OTP in Redis:`, storedOTP); 
+  if (!storedOTP) {
+    console.error(`Failed to store OTP for ${email}`);
+  } else {
+    console.log(`OTP ${storedOTP} stored successfully for ${email}`);
+  }
+  console.log(`OTP ${otp} sent to ${email}`);
+}
 
-
+  async verifyOTP(identifier: string, otp: string): Promise<boolean> {
+    const storedOtp = await this.redisService.getOTP(identifier);
+    // Only delete the OTP **AFTER** verification is successful
+    await this.redisService.deleteOTP(identifier);
+    return true;
+  }
+  
+}
+function parsePhoneNumberFromString(phone: string, arg1: string) {
+  throw new Error('Function not implemented.');
+}
 

@@ -61,12 +61,13 @@ export class UserController {
 
      // ✅ Verify OTP
   @Post('verify-otp')
-  async verifyOtp(@Body() body: { identifier: string; otp: string }) {
-    return this.userService.verifyOTP(body.identifier, body.otp);
+  async verifyOtp(@Body() body: { identifier: string; otp: string }):Promise<{message:string} >{
+    this.userService.verifyOTP(body.identifier, body.otp);
+    return {message:"The otp is successfully verified"}
   }
 
 
-   // ✅ Reset Password After OTP Verification
+  // ✅ Reset Password After OTP Verification
    @Post('reset-password')
    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
      return this.userService.resetPassword(resetPasswordDto);

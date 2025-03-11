@@ -1,63 +1,88 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from "@nestjs/common";
 import { createClient, RedisClientType } from "redis";
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client: RedisClientType;
+  private readonly logger = new Logger(RedisService.name);
+
   constructor() {
     this.client = createClient({
-      url: process.env.REDIS_URL || "redis://localhost:6379", // Use env variable
+      url: `rediss://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
       socket: {
+        tls: true, // Upstash requires TLS
         reconnectStrategy: (retries) => Math.min(retries * 500, 3000), // Retry logic
       },
+      
     });
+
     this.client.on("error", (err) => {
-      console.error("Redis Client Error:", err);
+      this.logger.error("❌ Redis Client Error:", err);
+    });
+
+    this.client.on("connect", () => {
+      this.logger.log("✅ Redis Connected Successfully");
+    });
+
+    this.client.on("reconnecting", () => {
+      this.logger.warn("♻️ Redis Reconnecting...");
+    });
+
+    this.client.on("end", () => {
+      this.logger.warn("🔴 Redis Connection Closed");
     });
   }
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     try {
       await this.client.connect();
-      console.log("Redis Connected Successfully");
+      this.logger.log("🚀 Redis Connection Established");
     } catch (error) {
-      console.error("Redis Connection Failed:", error);
+      this.logger.error("❌ Redis Connection Failed:", error);
     }
   }
 
-  async setOTP(identifier: string, otp: string, ttl: number = 300) {
+  async setOTP(identifier: string, otp: string, ttl: number = 600) {
     try {
-      await this.client.set(identifier, otp, { EX: ttl }); // OTP expires in 5 mins
-      console.log(`OTP set for ${identifier}`);
+      const result = await this.client.set(identifier, otp, { EX: ttl });
+      if (result !== "OK") {
+        throw new Error("Failed to store OTP in Redis");
+      }
+      this.logger.log(`✅ OTP set for ${identifier}`);
     } catch (error) {
-      console.error("Redis SET Error:", error);
+      this.logger.error("❌ Redis SET Error:", error);
     }
   }
+  
 
   async getOTP(identifier: string): Promise<string | null> {
     try {
-      return await this.client.get(identifier);
+      const otp = await this.client.get(identifier);
+      if (!otp) {
+        this.logger.warn(`⚠️ OTP not found for identifier: ${identifier}`);
+      }
+      return otp;
     } catch (error) {
-      console.error("Redis GET Error:", error);
+      this.logger.error("❌ Redis GET Error:", error);
       return null;
     }
   }
 
-  async deleteOTP(identifier: string) {
+  async deleteOTP(identifier: string): Promise<void> {
     try {
       await this.client.del(identifier);
-      console.log(`OTP deleted for ${identifier}`);
+      this.logger.log(`🗑️ OTP deleted for identifier: ${identifier}`);
     } catch (error) {
-      console.error(" Redis DELETE Error:", error);
+      this.logger.error("❌ Redis DELETE Error:", error);
     }
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     try {
       await this.client.quit();
-      console.log("Redis Client Disconnected");
+      this.logger.log("🔴 Redis Client Disconnected");
     } catch (error) {
-      console.error("Redis Disconnection Error:", error);
+      this.logger.error("❌ Redis Disconnection Error:", error);
     }
   }
 }

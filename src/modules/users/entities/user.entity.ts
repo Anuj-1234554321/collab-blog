@@ -16,7 +16,7 @@ export class User {
   @Column()
   name?: string;
   
-  @Column({ unique: true, nullable: true }) // Ensure uniqueness
+  @Column({ unique: true}) // Ensure uniqueness
   phone?: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER }) // ✅ Store roles using enum
