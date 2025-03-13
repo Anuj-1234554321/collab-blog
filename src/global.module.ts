@@ -27,6 +27,8 @@ import { UsersModule } from './modules/users/users.module';
 import { connectionSource } from 'config/ormconfig';
 import { FollowersModule } from './modules/followers/followers.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { RolesGuard } from './modules/auth/gaurds/roles.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 
 @Global()
@@ -41,6 +43,7 @@ import { RedisModule } from './modules/redis/redis.module';
     FollowersModule,
     RedisModule
   ],
+  
   exports: [
     ConfigModule,
     TypeOrmModule,

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { UserRole } from '../../../common/enums/user-role.enum';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { Follow } from '../../followers/entities/follower.entity';
 
 @Entity('users') // ✅ Table name: 'users'

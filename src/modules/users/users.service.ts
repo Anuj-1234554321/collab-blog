@@ -29,6 +29,9 @@ import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
 @Injectable()
 export class UserService {
+  delete(id: any) {
+    throw new Error('Method not implemented.');
+  }
   private twilioClient;
   client: any;
   constructor(
@@ -100,7 +103,10 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    await this.userRepository.delete(userId);
+    const deleteResult = await this.userRepository.delete(userId);
+    if (!deleteResult.affected) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+  }
   }
 
   //forgate password
