@@ -27,8 +27,7 @@ import { UsersModule } from './modules/users/users.module';
 import { connectionSource } from 'config/ormconfig';
 import { FollowersModule } from './modules/followers/followers.module';
 import { RedisModule } from './modules/redis/redis.module';
-import { RolesGuard } from './modules/auth/gaurds/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { BlogPostModule } from './modules/blog-post/blog-post.module';
 
 
 @Global()
@@ -41,7 +40,8 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule, // ✅ Include AuthModule
     UsersModule, // ✅ Include UsersModule
     FollowersModule,
-    RedisModule
+    RedisModule,
+    BlogPostModule
   ],
   
   exports: [
@@ -51,6 +51,8 @@ import { APP_GUARD } from '@nestjs/core';
     UsersModule, // ✅ Export all modules so they are accessible everywhere
     FollowersModule,
     RedisModule, // ✅ Export RedisModule so it can be used in other modules
+    BlogPostModule
+    
   ],
 })
 export class GlobalModule {}

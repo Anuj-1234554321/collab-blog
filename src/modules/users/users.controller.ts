@@ -59,9 +59,9 @@ export class UserController {
   // ✅ Delete User (Protected Route)
 
 @Roles(UserRole.ADMIN, UserRole.EDITOR)
-  @Delete(':id')
+  @Delete('delete/:id')
   async deleteUser(@Req() req:any) :Promise<{message:string}>{
-    this.userService.remove(req.user.userId);
+    await this.userService.remove(req.user.userId);
     return { message: 'User deleted successfully.' };
   }
    // ✅ Forgot Password - Sends OTP via Email or SMS

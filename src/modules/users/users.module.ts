@@ -7,11 +7,12 @@ import { AuthModule } from '../auth/auth.module'; // Ensure this is correct
 import { FollowersModule } from '../followers/followers.module';
 import { FollowersService } from '../followers/followers.service';
 import { RedisModule } from '../redis/redis.module';
+import { BlogPost } from '../blog-post/entities/blog-post.entity';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]), // ✅ Ensure User entity is imported
+    TypeOrmModule.forFeature([User,BlogPost]), // ✅ Ensure User entity is imported
     forwardRef(() => AuthModule), // ✅ Fix circular dependency issue
     forwardRef(() => FollowersModule),
     RedisModule

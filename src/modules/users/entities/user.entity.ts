@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Follow } from '../../followers/entities/follower.entity';
+import { BlogPost } from '../../blog-post/entities/blog-post.entity';
 
 @Entity('users') // ✅ Table name: 'users'
 export class User {
@@ -26,6 +27,9 @@ export class User {
   following?: Follow[];
  @OneToMany(() => Follow, (follow) => follow.following)
   followers?: Follow[];
+  // blogPosts
+  @OneToMany(() => BlogPost, (blogPost) => blogPost.author)
+  blogPosts?: BlogPost[];
 
   @CreateDateColumn() // ✅ Auto-generate created timestamp
   createdAt?: Date;
