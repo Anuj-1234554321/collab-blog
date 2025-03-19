@@ -1,24 +1,4 @@
-// import { Module, Global } from '@nestjs/common';
-// import { ConfigModule } from '@nestjs/config';
-// import { JwtModule } from '@nestjs/jwt';
-// import { TypeOrmModule } from '@nestjs/typeorm';
-// import { AuthModule } from './modules/auth/auth.module';
-// import registerAs  from '../config/env.config';
 
-// @Global()
-// @Module({
-//   imports: [
-//     ConfigModule.forRoot({ isGlobal: true }), // ✅ Load environment variables
-//     TypeOrmModule.forRoot(databaseConfig), // ✅ Use proper DB config
-//     JwtModule.register({
-//       secret: process.env.JWT_SECRET || 'default_secret',
-//       signOptions: { expiresIn: '1h' },
-//     }),
-//     AuthModule, // ✅ Import AuthModule before exporting it
-//   ],
-//   exports: [ConfigModule, TypeOrmModule, JwtModule, AuthModule], // ✅ Correct exports
-// })
-// export class GlobalModule {}
 import { Module, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -29,6 +9,7 @@ import { FollowersModule } from './modules/followers/followers.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { BlogPostModule } from './modules/blog-post/blog-post.module';
 import { MarkdownModule } from './modules/markdown/markdown.module';
+import { FileUploadModule } from './modules/file-upload/file-upload.module';
 @Global()
 @Module({
   imports: [
@@ -42,6 +23,8 @@ import { MarkdownModule } from './modules/markdown/markdown.module';
     RedisModule,
     BlogPostModule,
     MarkdownModule,
+    FileUploadModule
+    
     
   ],
   
@@ -49,11 +32,12 @@ import { MarkdownModule } from './modules/markdown/markdown.module';
     ConfigModule,
     TypeOrmModule,
     AuthModule,
-    UsersModule, // ✅ Export all modules so they are accessible everywhere
+    UsersModule, 
     FollowersModule,
-    RedisModule, // ✅ Export RedisModule so it can be used in other modules
+    RedisModule, 
     BlogPostModule,
-    MarkdownModule
+    MarkdownModule,
+    FileUploadModule
     
     
   ],
