@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ValidationPipe, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ValidationPipe, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { UserService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,6 +8,9 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RolesGuard } from '../auth/gaurds/roles.guard';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Public, Roles } from '../auth/gaurds/roles.decorator';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('users')
 export class UserController {
@@ -67,16 +70,24 @@ export class UserController {
    // ✅ Forgot Password - Sends OTP via Email or SMS
    @Public()
    @Post('forgot-password')
-   async forgotPassword(@Body() body: { identifier: string; mode: 'email' | 'sms' }) {
-     return this.userService.forgotPassword(body.identifier, body.mode);
+   async forgotPassword(@Body() forgatedPassword:ForgotPasswordDto ) {
+    const { identifier,mode} = forgatedPassword;
+    if (!identifier ||!mode) {
+      throw new BadRequestException("Both identifier and mode are required.");
+    }
+     return this.userService.forgotPassword(identifier,mode);
    }
 
      // ✅ Verify OTP
-     @Public()
+  @Public()
   @Post('verify-otp')
-  async verifyOtp(@Body() body: { identifier: string; otp: string }):Promise<{message:string} >{
-    this.userService.verifyOTP(body.identifier, body.otp);
-    return {message:"The otp is successfully verified"}
+  async verifyOtp(@Body()verifyOtpDto:VerifyOtpDto) {
+    const { identifier,otp} = verifyOtpDto;
+    if (!identifier||!otp) {
+      throw new BadRequestException('Verification ID and OTP are required');
+    }
+    return this.userService.verifyOTP(identifier,otp);
+    
   }
 
 

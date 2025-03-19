@@ -9,4 +9,9 @@ export class ResetPasswordDto {
   @IsNotEmpty()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   newPassword?: string;
+  //otpCode
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6, { message: 'Password must be at least' })
+  otpCode?: string;
 }

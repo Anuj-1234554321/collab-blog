@@ -7,10 +7,15 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { BlogStatus } from 'src/common/enums/blog-post.enum';
 import { UserService } from '../users/users.service';
+import { MarkdownService } from '../markdown/markdown.service';
+import { marked } from 'marked';
 
 
 @Injectable()
 export class BlogPostService {
+  getPostById(id: string) {
+    throw new Error('Method not implemented.');
+  }
   
   constructor(
     @InjectRepository(BlogPost)
@@ -82,5 +87,4 @@ async getAllBlogPosts():Promise<BlogPost[]>{
   await this.blogRepository.delete(id);
   return { message: 'Blog post deleted successfully' };
 }
-
 }

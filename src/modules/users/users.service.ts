@@ -17,12 +17,9 @@ import { AuthService } from '../auth/auth.service';
 import { RedisService } from 'src/modules/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { Twilio } from "twilio";
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { PhoneNumber } from 'libphonenumber-js';
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
-
-
+import { VerificationMode } from 'src/common/enums/verification-mode.enum';
 
 
 
@@ -32,24 +29,18 @@ export class UserService {
   delete(id: any) {
     throw new Error('Method not implemented.');
   }
-  private twilioClient;
   client: any;
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
-
     @Inject(forwardRef(() => AuthService)) // ✅ Fix circular dependency
     private authService: AuthService,
   ) {
-     this.twilioClient = new Twilio(
-    this.configService.get<string>("TWILIO_ACCOUNT_SID"),
-    this.configService.get<string>("TWILIO_AUTH_TOKEN")
-  );
 }
 
-  /** 🔹 Create User (Prevent Duplicates + Hash Password) */
+  //* 🔹 Create User (Prevent Duplicates + Hash Password) */
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password } = createUserDto;
 
@@ -110,23 +101,42 @@ export class UserService {
   }
 
   //forgate password
-  async forgotPassword(identifier: string, mode: "email" | "sms") {
-    const user = await this.findUser(identifier, mode);
-    if (!user) throw new BadRequestException("User not found.");
-    const otp = this.generateOTP();
-    await this.redisService.setOTP(identifier, otp, 300);
-    try {
-      mode === "email" ? await this.sendOtpEmail(identifier, otp) : await this.sendOtpSms(identifier, otp);
+  async forgotPassword(identifier: string,mode: VerificationMode) {
+  const user = await this.findUser(identifier, mode);
+     if (!user) throw new BadRequestException("User not found.");
+        try {
+             if (mode ===VerificationMode.EMAIL) {
+             // ✅ Generate OTP & store in Redis
+            const otp = this.generateOTP();
+            const isStored = await this.redisService.setOTP(identifier, otp, 300)
+            if (!isStored) {
+            console.error(`Failed to store OTP for ${identifier}`);
+            throw new InternalServerErrorException("Error generating OTP. Please try again.");
+            }
+            console.log(`✅ OTP stored in Redis: ${otp} for ${identifier}`);
+            await this.sendOtpEmail(identifier, otp);
+  
+          } else if (mode === VerificationMode.SMS) {
+        //   // ✅ Use Firebase to send OTP via SMS
+        //    const verificationId = await this.firebaseService.sendOtp(identifier);
+        //     if (!verificationId) {
+        //      throw new InternalServerErrorException("Failed to generate OTP for SMS.");
+        //     }
+        
+        // console.log(`📱 OTP request sent via Firebase to ${identifier}`);
+        // return { message: "OTP sent successfully.", verificationId };
+      }
+      
     } catch (error) {
-      console.error(`Failed to send OTP via ${mode.toUpperCase()}:`, error);
-      throw new InternalServerErrorException("Failed to send OTP. Please try again.");
+      console.error(`Failed to send OTP via ${mode.toUpperCase()} for ${identifier}:`, error);
+    throw new InternalServerErrorException("Failed to send OTP. Please try again.");
+      
     }
-    return { message: "OTP sent successfully." };
   }
 
 // find User by email or phone number
-  private async findUser(identifier: string, mode: "email" | "sms"): Promise<User | null> {
-    return mode === "email"
+  private async findUser(identifier: string, mode: VerificationMode): Promise<User | null> {
+    return mode === VerificationMode.EMAIL
       ? await this.userRepository.findOne({ where: { email: identifier } })
       : await this.userRepository.findOne({ where: { phone: identifier } });
   }
@@ -146,18 +156,14 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException('User not found');
-
     // Hash new password
     const hashedPassword =  await this.authService.hashPassword(newPassword);
     user.password = hashedPassword;
     await this.userRepository.save(user);
     // Remove OTP from Redis after successful reset
     await this.redisService.deleteOTP(`OTP_${identifier}`);
-
     return { message: 'Password reset successful' };
   }
-
-
     // �� Send OTP via email and SMS (use Twilio or Nodemailer)
   private async sendOtpEmail(email: string, otp: string) {
     const transporter = nodemailer.createTransport({
@@ -182,25 +188,6 @@ export class UserService {
       throw new InternalServerErrorException("Error sending OTP email.");
     }
   }
-// send otp message by twil
-private async sendOtpSms(phone: string, otp: string) {
-  try {
-    // Manually format the phone number
-    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`; // Ensure it starts with +91
-
-    // Send OTP via Twilio
-    await this.twilioClient.messages.create({
-      body: `Your OTP for password reset is: ${otp}`,
-      from: this.configService.get<string>('TWILIO_PHONE_NUMBER'),
-      to: formattedPhone, // Use manually formatted phone number
-    });
-
-    console.log(`📱 OTP sent successfully to ${formattedPhone}`);
-  } catch (error) {
-    console.error('❌ SMS send failed:', error);
-    throw new InternalServerErrorException('Error sending OTP SMS.');
-  }
-}
 //set otpo n mail with time
 async sendOTP(email: string) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -223,8 +210,5 @@ async sendOTP(email: string) {
     return true;
   }
   
-}
-function parsePhoneNumberFromString(phone: string, arg1: string) {
-  throw new Error('Function not implemented.');
 }
 

@@ -28,8 +28,7 @@ import { connectionSource } from 'config/ormconfig';
 import { FollowersModule } from './modules/followers/followers.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { BlogPostModule } from './modules/blog-post/blog-post.module';
-
-
+import { MarkdownModule } from './modules/markdown/markdown.module';
 @Global()
 @Module({
   imports: [
@@ -41,7 +40,9 @@ import { BlogPostModule } from './modules/blog-post/blog-post.module';
     UsersModule, // ✅ Include UsersModule
     FollowersModule,
     RedisModule,
-    BlogPostModule
+    BlogPostModule,
+    MarkdownModule,
+    
   ],
   
   exports: [
@@ -51,7 +52,9 @@ import { BlogPostModule } from './modules/blog-post/blog-post.module';
     UsersModule, // ✅ Export all modules so they are accessible everywhere
     FollowersModule,
     RedisModule, // ✅ Export RedisModule so it can be used in other modules
-    BlogPostModule
+    BlogPostModule,
+    MarkdownModule
+    
     
   ],
 })

@@ -10,12 +10,13 @@ import { RedisModule } from '../redis/redis.module';
 import { BlogPost } from '../blog-post/entities/blog-post.entity';
 
 
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User,BlogPost]), // ✅ Ensure User entity is imported
     forwardRef(() => AuthModule), // ✅ Fix circular dependency issue
     forwardRef(() => FollowersModule),
-    RedisModule
+    RedisModule,
   ],
   controllers: [UserController],
   providers: [UserService],
