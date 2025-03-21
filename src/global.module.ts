@@ -4,12 +4,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { connectionSource } from 'config/ormconfig';
+import { connectionSource } from '../config/orm.config';
 import { FollowersModule } from './modules/followers/followers.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { BlogPostModule } from './modules/blog-post/blog-post.module';
 import { MarkdownModule } from './modules/markdown/markdown.module';
 import { FileUploadModule } from './modules/file-upload/file-upload.module';
+import { TagModule } from './modules/tag/tag.module';
+import { CategoryModule } from './modules/category/category.module';
 @Global()
 @Module({
   imports: [
@@ -23,7 +25,10 @@ import { FileUploadModule } from './modules/file-upload/file-upload.module';
     RedisModule,
     BlogPostModule,
     MarkdownModule,
-    FileUploadModule
+    FileUploadModule,
+    TagModule,
+    CategoryModule
+
     
     
   ],
@@ -37,7 +42,8 @@ import { FileUploadModule } from './modules/file-upload/file-upload.module';
     RedisModule, 
     BlogPostModule,
     MarkdownModule,
-    FileUploadModule
+    FileUploadModule,
+    CategoryModule
     
     
   ],

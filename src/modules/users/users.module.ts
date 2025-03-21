@@ -8,6 +8,7 @@ import { FollowersModule } from '../followers/followers.module';
 import { FollowersService } from '../followers/followers.service';
 import { RedisModule } from '../redis/redis.module';
 import { BlogPost } from '../blog-post/entities/blog-post.entity';
+import { BlogPostModule } from '../blog-post/blog-post.module';
 
 
 
@@ -16,6 +17,7 @@ import { BlogPost } from '../blog-post/entities/blog-post.entity';
     TypeOrmModule.forFeature([User,BlogPost]), // ✅ Ensure User entity is imported
     forwardRef(() => AuthModule), // ✅ Fix circular dependency issue
     forwardRef(() => FollowersModule),
+    forwardRef(() => BlogPostModule),
     RedisModule,
   ],
   controllers: [UserController],

@@ -18,12 +18,7 @@ import { RedisService } from 'src/modules/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { PhoneNumber } from 'libphonenumber-js';
 import { VerificationMode } from 'src/common/enums/verification-mode.enum';
-
-
-
-
 @Injectable()
 export class UserService {
   delete(id: any) {
@@ -68,12 +63,12 @@ export class UserService {
 
   /** 🔹 Find User by ID */
   async findById(id: number): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   /** 🔹 Find User by Email */
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return await this.userRepository.findOne({ where: { email } });
   }
 
   /** 🔹 Update User (Ensure User Exists) */

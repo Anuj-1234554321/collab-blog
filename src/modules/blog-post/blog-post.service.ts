@@ -1,14 +1,16 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogPost } from './entities/blog-post.entity';
-import { Repository } from 'typeorm';
+import { DeepPartial, In, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { BlogStatus } from 'src/common/enums/blog-post.enum';
 import { UserService } from '../users/users.service';
 import { MarkdownService } from '../markdown/markdown.service';
 import { marked } from 'marked';
+import { Category } from '../category/entities/category.entity';
+import { Tag } from '../tag/entities/tag.entity';
 
 
 @Injectable()
@@ -20,17 +22,35 @@ export class BlogPostService {
   constructor(
     @InjectRepository(BlogPost)
     private readonly blogRepository: Repository<BlogPost>,
-    @InjectRepository(User)  
-    private readonly userRepository: Repository<User>, // ✅ Ensure User repo is injected
+    @Inject(forwardRef(() => UserService)) // ✅ Use forwardRef to resolve dependency
     private readonly userService: UserService,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
   
   ) {}
 
   // Create a new blog post (Draft by default)
-  async createBlogPost(createBlogDto: CreateBlogPostDto, userId:number) :Promise<BlogPost> {
+   async createBlogPost(createBlogDto: CreateBlogPostDto, userId:number) :Promise<BlogPost> {
     const user = await this.userService.findById(userId);
     if(!user) throw new Error('No such user found for createBlogPost')
-    const newPost = this.blogRepository.create({ ...createBlogDto, author:user, status: BlogStatus.DRAFT });
+        // 2️⃣ Fetch Categories and Tags from DB
+    const categories = createBlogDto.categories?.length
+    ? await this.categoryRepository.findBy({ id: In(createBlogDto.categories) })
+    : [];
+
+    const tags = createBlogDto.tags?.length
+    ? await this.tagRepository.findBy({ id: In(createBlogDto.tags) })
+    : [];
+
+    const newPost = this.blogRepository.create({
+      ...createBlogDto,
+      author: user,  // Assigning fetched User
+      categories,    // Assigning fetched Categories
+      tags,          // Assigning fetched Tags
+      status: BlogStatus.DRAFT,
+    } as DeepPartial<BlogPost>);
     return this.blogRepository.save(newPost);
   }
 

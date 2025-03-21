@@ -16,7 +16,6 @@ export class BlogPostController {
  @Post('create')
  async createBlog(@Body() createBlogDto: CreateBlogPostDto,@Req() req: any) {
   const userId = req.user.userId;
-  console.log(userId);
   if(!userId) throw new Error('user found not found');
    return this.blogService.createBlogPost(createBlogDto, userId);
  }
