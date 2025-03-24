@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe, NotFoundException} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe, NotFoundException, Query} from '@nestjs/common';
 import { BlogPostService } from './blog-post.service';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
@@ -35,15 +35,21 @@ async getBlog(@Param('id') id: number) {
 // Get All blog Posts
 @Public()
 @Get()
-async getAllBlogs() {
-  return this.blogService.getAllBlogPosts();
-}
-
-  // Publish a blog post (only the author)
-@Patch('publish/:id')
-  async publishBlog(@Param('id',ParseIntPipe) id: number, @Req() req:any) {
-    return this.blogService.publishBlogPost(id, req.user.userId);
+  async getAllBlogPosts(
+    @Query('page') page?: number,  
+    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'ASC' | 'DESC'
+  ) {
+    return this.blogService.getAllBlogPosts(
+      Number(page) || 1,
+      Number(limit) || 10,
+      sortBy || 'createdAt',
+      sortOrder === 'ASC' ? 'ASC' : 'DESC'
+    );
   }
+
+// Delete a blog post (only the author)
   
 // Update a blog post (only the author)
 @Patch('update/:id')

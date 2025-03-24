@@ -61,9 +61,35 @@ export class BlogPostService {
   return post;
 }
 // Get all posts
-async getAllBlogPosts():Promise<BlogPost[]>{
-  return this.blogRepository.find({ relations: ['author'] });
+async getAllBlogPosts(
+  page?: number, 
+  limit?: number, 
+  sortBy?: string, 
+  sortOrder?: 'ASC' | 'DESC'
+): Promise<{ data: BlogPost[]; total: number; page: number; limit: number }> {
+  
+  // If no values are provided, set defaults
+  const pageNum = Math.max(1, page || 1);
+  const limitNum = Math.max(1, limit || 10);
+  const sortField = sortBy || 'createdAt';
+  const order: 'ASC' | 'DESC' = sortOrder || 'DESC';
+
+  const skip = (pageNum - 1) * limitNum;
+
+  const total = await this.blogRepository.count();
+
+  const blogPosts = await this.blogRepository.find({
+    relations: ['categories', 'tags', 'author'],
+    order: { [sortField]: order },
+    skip,
+    take: limitNum,
+  });
+
+  return { data: blogPosts, total, page: pageNum, limit: limitNum };
 }
+
+
+
 
 
   // Update a blog post (only if the user is the author)
