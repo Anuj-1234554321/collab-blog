@@ -1,10 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, JoinTable, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 import { BlogStatus } from 'src/common/enums/blog-post.enum';
 import { Category } from 'src/modules/category/entities/category.entity';
 import { Tag } from 'src/modules/tag/entities/tag.entity';
+import { Comment } from 'src/modules/comments/entities/comment.entity';
+import { Reaction } from 'src/modules/reactions/entities/reaction.entity';
 
-@Entity({ name: 'blog_posts' })
+@Entity()
 export class BlogPost {
   @PrimaryGeneratedColumn()
   id?: number;
@@ -24,7 +26,13 @@ export class BlogPost {
 
   @ManyToMany(() => Category, (category) => category.blogPosts, { cascade: true })
   @JoinTable()
+
   categories?: Category[];
+  @OneToMany(() => Comment, (comment) => comment.blogPost, { cascade: true })
+  comments?: Comment[];
+
+  @OneToMany(() => Reaction, (reaction) => reaction.blogPost, { cascade: true })
+reactions?: Reaction[];
 
   @ManyToMany(() => Tag, (tag) => tag.blogPosts, { cascade: true })
   @JoinTable()

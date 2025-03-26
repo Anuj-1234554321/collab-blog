@@ -21,6 +21,7 @@ export class BlogPostController {
  }
 
 // Get a single blog post
+@Public()
 @Get(':id')
 async getBlog(@Param('id') id: number) {
   const blog = await this.blogService.getBlogPostById(id);

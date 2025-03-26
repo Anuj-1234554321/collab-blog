@@ -12,6 +12,8 @@ import { MarkdownModule } from './modules/markdown/markdown.module';
 import { FileUploadModule } from './modules/file-upload/file-upload.module';
 import { TagModule } from './modules/tag/tag.module';
 import { CategoryModule } from './modules/category/category.module';
+import { CommentsModule } from './modules/comments/comments.module';
+import { ReactionsModule } from './modules/reactions/reactions.module';
 @Global()
 @Module({
   imports: [
@@ -27,10 +29,9 @@ import { CategoryModule } from './modules/category/category.module';
     MarkdownModule,
     FileUploadModule,
     TagModule,
-    CategoryModule
-
-    
-    
+    CategoryModule,
+    CommentsModule,
+    ReactionsModule
   ],
   
   exports: [
@@ -44,8 +45,6 @@ import { CategoryModule } from './modules/category/category.module';
     MarkdownModule,
     FileUploadModule,
     CategoryModule
-    
-    
   ],
 })
 export class GlobalModule {}

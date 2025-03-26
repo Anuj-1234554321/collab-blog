@@ -87,11 +87,6 @@ async getAllBlogPosts(
 
   return { data: blogPosts, total, page: pageNum, limit: limitNum };
 }
-
-
-
-
-
   // Update a blog post (only if the user is the author)
   async updateBlogPost(id: number, updateBlogDto: UpdateBlogPostDto, userId:number): Promise<BlogPost> {
     const post = await this.getBlogPostById(id);

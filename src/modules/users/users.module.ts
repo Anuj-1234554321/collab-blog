@@ -9,12 +9,11 @@ import { FollowersService } from '../followers/followers.service';
 import { RedisModule } from '../redis/redis.module';
 import { BlogPost } from '../blog-post/entities/blog-post.entity';
 import { BlogPostModule } from '../blog-post/blog-post.module';
-
-
-
+import { Reaction } from '../reactions/entities/reaction.entity';
+import { Comment } from '../comments/entities/comment.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User,BlogPost]), // ✅ Ensure User entity is imported
+    TypeOrmModule.forFeature([User,BlogPost,Comment,Reaction]), // ✅ Ensure User entity is imported
     forwardRef(() => AuthModule), // ✅ Fix circular dependency issue
     forwardRef(() => FollowersModule),
     forwardRef(() => BlogPostModule),
